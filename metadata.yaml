@@ -1,2 +1,6 @@
 homepage: "https://www.privyone.com"
 documentation: "https://www.privyone.com/cookie-manager-implementation"
+versions:
+  - sha: 4fb671a750970021f786a4ad9eff7370597e2cf3
+    changeNotes: Initial release.
+
