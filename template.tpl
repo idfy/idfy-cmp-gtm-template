@@ -35,6 +35,7 @@ const log = require('logToConsole');
 const setDefaultConsentState = require('setDefaultConsentState');
 const updateConsentState = require('updateConsentState');
 const getCookieValues = require('getCookieValues');
+const createQueue = require('createQueue');
 const JSON = require('JSON');
 const Object = require('Object');
 
@@ -42,17 +43,15 @@ const Object = require('Object');
 const COOKIE_NAME = 'privyConsent';
 
 // Set the default consent state
-
 setDefaultConsentState({
-        ad_storage: 'denied',
-        ad_user_data: 'denied',
-        ad_personalization: 'denied',
-        analytics_storage: 'denied',
-        functionality_storage: 'denied',
-        personalization_storage: 'denied',
-        security_storage: 'granted'
-      });
-
+  ad_storage: 'denied',
+  ad_user_data: 'denied',
+  ad_personalization: 'denied',
+  analytics_storage: 'denied',
+  functionality_storage: 'denied',
+  personalization_storage: 'denied',
+  security_storage: 'granted'
+});
 
 // Define a mapping between your consent categories and Google Consent Mode keys
 const consentMapping = {
@@ -83,12 +82,21 @@ function applyConsent(consent) {
 
 // Main function to read the consent cookie and apply consent
 function main() {
-  
   const cookieVal = getCookieValues(COOKIE_NAME);
+  const dataLayerPush = createQueue('dataLayer');
+
   if (cookieVal && cookieVal.length > 0) {
     const consent = JSON.parse(cookieVal[0]);
+
     if (consent) {
       applyConsent(consent);
+
+      // 🔥 Trigger custom event after consent is applied
+      dataLayerPush({
+        event: 'privy_consent_applied',
+        consent_state: consent
+      });
+
     } else {
       log('Consent cookie is empty or not in expected format.');
     }
@@ -148,6 +156,67 @@ ___WEB_PERMISSIONS___
               {
                 "type": 1,
                 "string": "privyConsent"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "clientAnnotations": {
+      "isEditedByUser": true
+    },
+    "isRequired": true
+  },
+  {
+    "instance": {
+      "key": {
+        "publicId": "access_globals",
+        "versionId": "1"
+      },
+      "param": [
+        {
+          "key": "keys",
+          "value": {
+            "type": 2,
+            "listItem": [
+              {
+                "type": 3,
+                "mapKey": [
+                  {
+                    "type": 1,
+                    "string": "key"
+                  },
+                  {
+                    "type": 1,
+                    "string": "read"
+                  },
+                  {
+                    "type": 1,
+                    "string": "write"
+                  },
+                  {
+                    "type": 1,
+                    "string": "execute"
+                  }
+                ],
+                "mapValue": [
+                  {
+                    "type": 1,
+                    "string": "dataLayer"
+                  },
+                  {
+                    "type": 8,
+                    "boolean": true
+                  },
+                  {
+                    "type": 8,
+                    "boolean": true
+                  },
+                  {
+                    "type": 8,
+                    "boolean": false
+                  }
+                ]
               }
             ]
           }
@@ -410,4 +479,4 @@ ___NOTES___
 
 Created on 27/08/2024, 11:47:57
 
-
+Last modified on 02/03/2026
