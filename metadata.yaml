@@ -3,7 +3,7 @@ documentation: "https://www.privyone.com/cookie-manager-implementation"
 versions:
 
   # Latest version
-  - sha: 93f7c91eb7d7e61c1557a4be8fce2d956b4a50cd
+  - sha: abb399b41c16508082a29dac1e23fa0bd838eb67
     changeNotes: added default consent settings
 
   # Older versions
