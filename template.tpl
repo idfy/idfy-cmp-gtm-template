@@ -473,7 +473,15 @@ ___WEB_PERMISSIONS___
 ___CONSENT_SETTINGS___
 
 {
-  "builtInConsent": [],
+  "builtInConsent": [
+    "ad_storage",
+    "analytics_storage",
+    "functionality_storage",
+    "personalization_storage",
+    "security_storage",
+    "ad_personalization",
+    "ad_user_data"
+  ],
   "noAdditionalConsent": true
 }
 
