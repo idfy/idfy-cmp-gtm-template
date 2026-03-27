@@ -470,6 +470,14 @@ ___WEB_PERMISSIONS___
 ]
 
 
+___CONSENT_SETTINGS___
+
+{
+  "builtInConsent": [],
+  "noAdditionalConsent": true
+}
+
+
 ___TESTS___
 
 scenarios: []
