@@ -1101,7 +1101,7 @@ setup: |-
   }
   function stored(cookieValue, localValue) {
     mock('getCookieValues', (name) => name === 'privyConsent' && cookieValue !== undefined ? [cookieValue] : []);
-    mock('localStorage', {getItem: (key) => key === 'privyConsent' ? localValue : null});
+    mockObject('localStorage', {getItem: (key) => key === 'privyConsent' ? localValue : null});
   }
   function consentCookie(consent) { return JSON.stringify(consent); }
   function row(region, ad, adUser, adPers, analytics, functionality, personalization) {
