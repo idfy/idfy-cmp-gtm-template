@@ -945,22 +945,6 @@ ___WEB_PERMISSIONS___
 ]
 
 
-___CONSENT_SETTINGS___
-
-{
-  "builtInConsent": [
-    "ad_storage",
-    "analytics_storage",
-    "functionality_storage",
-    "personalization_storage",
-    "security_storage",
-    "ad_personalization",
-    "ad_user_data"
-  ],
-  "noAdditionalConsent": true
-}
-
-
 ___TESTS___
 
 scenarios:
