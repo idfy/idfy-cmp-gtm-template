@@ -26,7 +26,309 @@ ___INFO___
 
 ___TEMPLATE_PARAMETERS___
 
-[]
+[
+  {
+    "type": "LABEL",
+    "name": "consentModeInfo",
+    "displayName": "Fire this tag on two triggers: <strong>Consent Initialization - All Pages</strong> and a Custom Event named <strong>privy_consent_update</strong>. Every Google consent type starts denied (security_storage is always granted) and waits up to 500 ms for the visitor's stored choice. Basic or advanced Consent Mode is decided by how your Google tags are set up in this container."
+  },
+  {
+    "type": "GROUP",
+    "name": "regionGroup",
+    "displayName": "Region defaults",
+    "groupStyle": "ZIPPY_CLOSED",
+    "subParams": [
+      {
+        "type": "SIMPLE_TABLE",
+        "name": "regionDefaults",
+        "displayName": "Default consent by region",
+        "help": "Optional. Overrides the all-denied default for visitors in the listed regions until they make a choice. Use ISO 3166-2 codes, comma separated, e.g. <code>IN</code> or <code>US-CA, US-NY</code>. Invalid codes are ignored, and a code already used in an earlier row is ignored.",
+        "newRowButtonText": "Add region",
+        "simpleTableColumns": [
+          {
+            "defaultValue": "",
+            "displayName": "Region (ISO 3166-2)",
+            "name": "region",
+            "type": "TEXT",
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              },
+              {
+                "type": "REGEX",
+                "args": [
+                  "^\\s*[A-Za-z]{2}(-[A-Za-z0-9]{1,3})?\\s*(,\\s*[A-Za-z]{2}(-[A-Za-z0-9]{1,3})?\\s*)*$"
+                ],
+                "errorMessage": "Use ISO 3166-2 codes such as IN or US-CA, separated by commas."
+              }
+            ]
+          },
+          {
+            "defaultValue": "denied",
+            "displayName": "ad_storage",
+            "name": "ad_storage",
+            "type": "SELECT",
+            "selectItems": [
+              {
+                "value": "denied",
+                "displayValue": "denied"
+              },
+              {
+                "value": "granted",
+                "displayValue": "granted"
+              }
+            ]
+          },
+          {
+            "defaultValue": "denied",
+            "displayName": "ad_user_data",
+            "name": "ad_user_data",
+            "type": "SELECT",
+            "selectItems": [
+              {
+                "value": "denied",
+                "displayValue": "denied"
+              },
+              {
+                "value": "granted",
+                "displayValue": "granted"
+              }
+            ]
+          },
+          {
+            "defaultValue": "denied",
+            "displayName": "ad_personalization",
+            "name": "ad_personalization",
+            "type": "SELECT",
+            "selectItems": [
+              {
+                "value": "denied",
+                "displayValue": "denied"
+              },
+              {
+                "value": "granted",
+                "displayValue": "granted"
+              }
+            ]
+          },
+          {
+            "defaultValue": "denied",
+            "displayName": "analytics_storage",
+            "name": "analytics_storage",
+            "type": "SELECT",
+            "selectItems": [
+              {
+                "value": "denied",
+                "displayValue": "denied"
+              },
+              {
+                "value": "granted",
+                "displayValue": "granted"
+              }
+            ]
+          },
+          {
+            "defaultValue": "denied",
+            "displayName": "functionality_storage",
+            "name": "functionality_storage",
+            "type": "SELECT",
+            "selectItems": [
+              {
+                "value": "denied",
+                "displayValue": "denied"
+              },
+              {
+                "value": "granted",
+                "displayValue": "granted"
+              }
+            ]
+          },
+          {
+            "defaultValue": "denied",
+            "displayName": "personalization_storage",
+            "name": "personalization_storage",
+            "type": "SELECT",
+            "selectItems": [
+              {
+                "value": "denied",
+                "displayValue": "denied"
+              },
+              {
+                "value": "granted",
+                "displayValue": "granted"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "GROUP",
+    "name": "mapGroup",
+    "displayName": "Privy category for each Google consent type",
+    "groupStyle": "ZIPPY_CLOSED",
+    "help": "A Google consent type is granted only when the visitor accepts the Privy category chosen here. security_storage is always granted.",
+    "subParams": [
+      {
+        "type": "SELECT",
+        "name": "mapAdStorage",
+        "displayName": "ad_storage",
+        "macrosInSelect": false,
+        "selectItems": [
+          {
+            "value": "FUNCTIONAL",
+            "displayValue": "FUNCTIONAL"
+          },
+          {
+            "value": "ANALYTICS",
+            "displayValue": "ANALYTICS"
+          },
+          {
+            "value": "MARKETING",
+            "displayValue": "MARKETING"
+          }
+        ],
+        "simpleValueType": true,
+        "defaultValue": "MARKETING"
+      },
+      {
+        "type": "SELECT",
+        "name": "mapAdUserData",
+        "displayName": "ad_user_data",
+        "macrosInSelect": false,
+        "selectItems": [
+          {
+            "value": "FUNCTIONAL",
+            "displayValue": "FUNCTIONAL"
+          },
+          {
+            "value": "ANALYTICS",
+            "displayValue": "ANALYTICS"
+          },
+          {
+            "value": "MARKETING",
+            "displayValue": "MARKETING"
+          }
+        ],
+        "simpleValueType": true,
+        "defaultValue": "MARKETING"
+      },
+      {
+        "type": "SELECT",
+        "name": "mapAdPersonalization",
+        "displayName": "ad_personalization",
+        "macrosInSelect": false,
+        "selectItems": [
+          {
+            "value": "FUNCTIONAL",
+            "displayValue": "FUNCTIONAL"
+          },
+          {
+            "value": "ANALYTICS",
+            "displayValue": "ANALYTICS"
+          },
+          {
+            "value": "MARKETING",
+            "displayValue": "MARKETING"
+          }
+        ],
+        "simpleValueType": true,
+        "defaultValue": "MARKETING"
+      },
+      {
+        "type": "SELECT",
+        "name": "mapAnalyticsStorage",
+        "displayName": "analytics_storage",
+        "macrosInSelect": false,
+        "selectItems": [
+          {
+            "value": "FUNCTIONAL",
+            "displayValue": "FUNCTIONAL"
+          },
+          {
+            "value": "ANALYTICS",
+            "displayValue": "ANALYTICS"
+          },
+          {
+            "value": "MARKETING",
+            "displayValue": "MARKETING"
+          }
+        ],
+        "simpleValueType": true,
+        "defaultValue": "ANALYTICS"
+      },
+      {
+        "type": "SELECT",
+        "name": "mapFunctionalityStorage",
+        "displayName": "functionality_storage",
+        "macrosInSelect": false,
+        "selectItems": [
+          {
+            "value": "FUNCTIONAL",
+            "displayValue": "FUNCTIONAL"
+          },
+          {
+            "value": "ANALYTICS",
+            "displayValue": "ANALYTICS"
+          },
+          {
+            "value": "MARKETING",
+            "displayValue": "MARKETING"
+          }
+        ],
+        "simpleValueType": true,
+        "defaultValue": "FUNCTIONAL"
+      },
+      {
+        "type": "SELECT",
+        "name": "mapPersonalizationStorage",
+        "displayName": "personalization_storage",
+        "macrosInSelect": false,
+        "selectItems": [
+          {
+            "value": "FUNCTIONAL",
+            "displayValue": "FUNCTIONAL"
+          },
+          {
+            "value": "ANALYTICS",
+            "displayValue": "ANALYTICS"
+          },
+          {
+            "value": "MARKETING",
+            "displayValue": "MARKETING"
+          }
+        ],
+        "simpleValueType": true,
+        "defaultValue": "FUNCTIONAL"
+      }
+    ]
+  },
+  {
+    "type": "GROUP",
+    "name": "advancedGroup",
+    "displayName": "Advanced settings",
+    "groupStyle": "ZIPPY_CLOSED",
+    "subParams": [
+      {
+        "type": "CHECKBOX",
+        "name": "adsDataRedaction",
+        "checkboxText": "Redact ads data (ads_data_redaction)",
+        "simpleValueType": true,
+        "defaultValue": false,
+        "help": "Applies only while ad_storage is denied: removes ad click identifiers from Google Ads and Floodlight requests."
+      },
+      {
+        "type": "CHECKBOX",
+        "name": "urlPassthrough",
+        "checkboxText": "Pass ad click information through URLs (url_passthrough)",
+        "simpleValueType": true,
+        "defaultValue": false,
+        "help": "Adds ad click and analytics parameters to links within your site, whether or not consent is granted."
+      }
+    ]
+  }
+]
 
 
 ___SANDBOXED_JS_FOR_WEB_TEMPLATE___
@@ -35,79 +337,132 @@ const log = require('logToConsole');
 const setDefaultConsentState = require('setDefaultConsentState');
 const updateConsentState = require('updateConsentState');
 const getCookieValues = require('getCookieValues');
+const localStorage = require('localStorage');
+const copyFromDataLayer = require('copyFromDataLayer');
 const createQueue = require('createQueue');
+const gtagSet = require('gtagSet');
+const getType = require('getType');
+const makeString = require('makeString');
 const JSON = require('JSON');
-const Object = require('Object');
 
-// Define the cookie name
-const COOKIE_NAME = 'privyConsent';
+const CONSENT_NAME = 'privyConsent';
+const UPDATE_EVENT = 'privy_consent_update';
+const APPLIED_EVENT = 'privy_consent_applied';
+const DEVELOPER_ID_KEY = 'developer_id.dMmRhY2';
+const WAIT_FOR_UPDATE_MS = 500;
+const CATEGORIES = ['FUNCTIONAL', 'ANALYTICS', 'MARKETING'];
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const LETTERS_AND_DIGITS = LETTERS + '0123456789';
 
-// Set the default consent state
-setDefaultConsentState({
-  ad_storage: 'denied',
-  ad_user_data: 'denied',
-  ad_personalization: 'denied',
-  analytics_storage: 'denied',
-  functionality_storage: 'denied',
-  personalization_storage: 'denied',
-  security_storage: 'granted'
-});
+// Google consent type, its map field, and the v3 category it falls back to.
+const SIGNALS = [
+  {type: 'ad_storage', field: 'mapAdStorage', fallback: 'MARKETING'},
+  {type: 'ad_user_data', field: 'mapAdUserData', fallback: 'MARKETING'},
+  {type: 'ad_personalization', field: 'mapAdPersonalization', fallback: 'MARKETING'},
+  {type: 'analytics_storage', field: 'mapAnalyticsStorage', fallback: 'ANALYTICS'},
+  {type: 'functionality_storage', field: 'mapFunctionalityStorage', fallback: 'FUNCTIONAL'},
+  {type: 'personalization_storage', field: 'mapPersonalizationStorage', fallback: 'FUNCTIONAL'}
+];
 
-// Define a mapping between your consent categories and Google Consent Mode keys
-const consentMapping = {
-  NECESSARY: ['security_storage'],
-  FUNCTIONAL: ['functionality_storage','personalization_storage'],
-  ANALYTICS: ['analytics_storage'],
-  MARKETING: ['ad_storage', 'ad_personalization','ad_user_data'],
-};
+function categoryFor(signal) {
+  const chosen = data[signal.field];
+  return CATEGORIES.indexOf(chosen) >= 0 ? chosen : signal.fallback;
+}
 
-// Function to update Google Consent Mode based on user consent
-function applyConsent(consent) {
-  let settings = {};
-  for (const key in consent) {
-    if (consent.hasOwnProperty(key)) {
-      const value = consent[key];
-      const googleKeys = consentMapping[key];
-      const status = value ? 'granted' : 'denied';
-      if (googleKeys) {
-        for (let i = 0; i < googleKeys.length; i++) {
-          const gKey = googleKeys[i];
-          settings[gKey] = status;
-        }
+function consentState(isGranted) {
+  const state = {};
+  SIGNALS.forEach((signal) => {
+    state[signal.type] = isGranted(signal) ? 'granted' : 'denied';
+  });
+  state.security_storage = 'granted';
+  return state;
+}
+
+function onlyChars(value, allowed) {
+  for (let i = 0; i < value.length; i++) {
+    if (allowed.indexOf(value.charAt(i)) < 0) return false;
+  }
+  return true;
+}
+
+// ISO 3166-1 alpha-2 country, optionally with an ISO 3166-2 subdivision.
+function isRegionCode(code) {
+  const country = code.substring(0, 2);
+  if (country.length !== 2 || !onlyChars(country, LETTERS)) return false;
+  if (code.length === 2) return true;
+  const subdivision = code.substring(3);
+  return code.charAt(2) === '-' && subdivision.length >= 1 && subdivision.length <= 3 &&
+    onlyChars(subdivision, LETTERS_AND_DIGITS);
+}
+
+function regionDefaults() {
+  const rows = getType(data.regionDefaults) === 'array' ? data.regionDefaults : [];
+  const claimed = {};
+  const defaults = [];
+  rows.forEach((row) => {
+    if (getType(row) !== 'object' || !row.region) return;
+    const codes = [];
+    makeString(row.region).split(',').forEach((raw) => {
+      const code = raw.trim().toUpperCase();
+      if (!code) return;
+      if (!isRegionCode(code)) {
+        log('Privy CMP: ignored invalid region code "' + raw.trim() + '"');
+        return;
       }
-    }
-  }
-  updateConsentState(settings);
+      if (claimed[code]) return;
+      claimed[code] = true;
+      codes.push(code);
+    });
+    if (!codes.length) return;
+    const state = consentState((signal) => row[signal.type] === 'granted');
+    state.region = codes;
+    state.wait_for_update = WAIT_FOR_UPDATE_MS;
+    defaults.push(state);
+  });
+  return defaults;
 }
 
-// Main function to read the consent cookie and apply consent
-function main() {
-  const cookieVal = getCookieValues(COOKIE_NAME);
-  const dataLayerPush = createQueue('dataLayer');
-
-  if (cookieVal && cookieVal.length > 0) {
-    const consent = JSON.parse(cookieVal[0]);
-
-    if (consent) {
-      applyConsent(consent);
-
-      // 🔥 Trigger custom event after consent is applied
-      dataLayerPush({
-        event: 'privy_consent_applied',
-        consent_state: consent
-      });
-
-    } else {
-      log('Consent cookie is empty or not in expected format.');
-    }
-  } else {
-    log('Consent cookie not found.');
-  }
-
-  data.gtmOnSuccess(); // Signal successful execution
+function parseConsent(raw) {
+  if (!raw) return undefined;
+  const consent = JSON.parse(raw);
+  return getType(consent) === 'object' ? consent : undefined;
 }
 
-main();
+// The banner mirrors the cookie to localStorage and falls back to it the same way.
+function readStoredConsent() {
+  const cookies = getCookieValues(CONSENT_NAME);
+  const fromCookie = cookies && cookies.length ? parseConsent(cookies[0]) : undefined;
+  return fromCookie || parseConsent(localStorage.getItem(CONSENT_NAME));
+}
+
+function applyStoredConsent(dataLayerPush) {
+  const consent = readStoredConsent();
+  if (!consent) {
+    log('Privy CMP: no stored consent, defaults stay in place');
+    return;
+  }
+  updateConsentState(consentState((signal) => consent[categoryFor(signal)] === true));
+  dataLayerPush({event: APPLIED_EVENT, consent_state: consent});
+}
+
+function setDefaults() {
+  const settings = {};
+  settings[DEVELOPER_ID_KEY] = true;
+  if (data.adsDataRedaction === true) settings.ads_data_redaction = true;
+  if (data.urlPassthrough === true) settings.url_passthrough = true;
+  gtagSet(settings);
+
+  const globalDefault = consentState(() => false);
+  globalDefault.wait_for_update = WAIT_FOR_UPDATE_MS;
+  setDefaultConsentState(globalDefault);
+  regionDefaults().forEach((state) => setDefaultConsentState(state));
+}
+
+const dataLayerPush = createQueue('dataLayer');
+if (copyFromDataLayer('event') !== UPDATE_EVENT) setDefaults();
+applyStoredConsent(dataLayerPush);
+
+data.gtmOnSuccess();
 
 
 ___WEB_PERMISSIONS___
@@ -466,33 +821,296 @@ ___WEB_PERMISSIONS___
       "isEditedByUser": true
     },
     "isRequired": true
+  },
+  {
+    "instance": {
+      "key": {
+        "publicId": "access_local_storage",
+        "versionId": "1"
+      },
+      "param": [
+        {
+          "key": "keys",
+          "value": {
+            "type": 2,
+            "listItem": [
+              {
+                "type": 3,
+                "mapKey": [
+                  {
+                    "type": 1,
+                    "string": "key"
+                  },
+                  {
+                    "type": 1,
+                    "string": "read"
+                  },
+                  {
+                    "type": 1,
+                    "string": "write"
+                  }
+                ],
+                "mapValue": [
+                  {
+                    "type": 1,
+                    "string": "privyConsent"
+                  },
+                  {
+                    "type": 8,
+                    "boolean": true
+                  },
+                  {
+                    "type": 8,
+                    "boolean": false
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "clientAnnotations": {
+      "isEditedByUser": true
+    },
+    "isRequired": true
+  },
+  {
+    "instance": {
+      "key": {
+        "publicId": "read_data_layer",
+        "versionId": "1"
+      },
+      "param": [
+        {
+          "key": "allowedKeys",
+          "value": {
+            "type": 1,
+            "string": "specific"
+          }
+        },
+        {
+          "key": "keyPatterns",
+          "value": {
+            "type": 2,
+            "listItem": [
+              {
+                "type": 1,
+                "string": "event"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "clientAnnotations": {
+      "isEditedByUser": true
+    },
+    "isRequired": true
+  },
+  {
+    "instance": {
+      "key": {
+        "publicId": "write_data_layer",
+        "versionId": "1"
+      },
+      "param": [
+        {
+          "key": "keyPatterns",
+          "value": {
+            "type": 2,
+            "listItem": [
+              {
+                "type": 1,
+                "string": "developer_id.dMmRhY2"
+              },
+              {
+                "type": 1,
+                "string": "ads_data_redaction"
+              },
+              {
+                "type": 1,
+                "string": "url_passthrough"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "clientAnnotations": {
+      "isEditedByUser": true
+    },
+    "isRequired": true
   }
 ]
 
 
-___CONSENT_SETTINGS___
-
-{
-  "builtInConsent": [
-    "ad_storage",
-    "analytics_storage",
-    "functionality_storage",
-    "personalization_storage",
-    "security_storage",
-    "ad_personalization",
-    "ad_user_data"
-  ],
-  "noAdditionalConsent": true
-}
-
-
 ___TESTS___
 
-scenarios: []
+scenarios:
+- name: AC5 consent init sets developer id then all-denied global default with wait_for_update
+  code: |-
+    on(INIT);
+    stored(undefined, null);
+    runCode({});
+    assertThat(calls).isEqualTo([
+      ['set', {'developer_id.dMmRhY2': true}],
+      ['default', merge(ALL_DENIED, {wait_for_update: 500})]
+    ]);
+    assertApi('gtmOnSuccess').wasCalled();
+- name: AC6 region rows add a default per row with normalised codes
+  code: |-
+    on(INIT);
+    stored(undefined, null);
+    runCode({regionDefaults: [
+      row('us-ca, US-NY', 'granted', 'granted', 'denied', 'granted', 'granted', 'denied')
+    ]});
+    assertThat(defaults()).isEqualTo([
+      merge(ALL_DENIED, {wait_for_update: 500}),
+      {ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'denied', analytics_storage: 'granted', functionality_storage: 'granted', personalization_storage: 'denied', security_storage: 'granted', region: ['US-CA', 'US-NY'], wait_for_update: 500}
+    ]);
+- name: AC6 invalid codes dropped, empty rows skipped, first row wins on duplicates
+  code: |-
+    on(INIT);
+    stored(undefined, null);
+    runCode({regionDefaults: [
+      row('IN, India, US-, 12, US-ABCD', 'granted', 'granted', 'granted', 'granted', 'granted', 'granted'),
+      row('', 'granted', 'granted', 'granted', 'granted', 'granted', 'granted'),
+      row(' , XX-', 'granted', 'granted', 'granted', 'granted', 'granted', 'granted'),
+      row('in,gb', 'denied', 'denied', 'denied', 'granted', 'denied', 'denied')
+    ]});
+    assertThat(defaults()).isEqualTo([
+      merge(ALL_DENIED, {wait_for_update: 500}),
+      merge(ALL_GRANTED, {region: ['IN'], wait_for_update: 500}),
+      merge(ALL_DENIED, {analytics_storage: 'granted', region: ['GB'], wait_for_update: 500})
+    ]);
+- name: AC6 a row value other than granted is sent as denied
+  code: |-
+    on(INIT);
+    stored(undefined, null);
+    runCode({regionDefaults: [{region: 'DE', ad_storage: 'yes'}]});
+    assertThat(defaults()[1]).isEqualTo(merge(ALL_DENIED, {region: ['DE'], wait_for_update: 500}));
+- name: AC7 custom map grants a type only when its mapped category is true
+  code: |-
+    on(INIT);
+    stored(consentCookie({NECESSARY: true, FUNCTIONAL: false, ANALYTICS: true, MARKETING: false}), null);
+    runCode({mapAnalyticsStorage: 'MARKETING', mapAdUserData: 'ANALYTICS'});
+    assertThat(updates()).isEqualTo([merge(ALL_DENIED, {ad_user_data: 'granted'})]);
+- name: AC7 unknown map value falls back to v3 map and security stays granted
+  code: |-
+    on(INIT);
+    stored(consentCookie({NECESSARY: false, FUNCTIONAL: true, ANALYTICS: false, MARKETING: true}), null);
+    runCode({mapAdStorage: 'NECESSARY'});
+    assertThat(updates()).isEqualTo([merge(ALL_GRANTED, {analytics_storage: 'denied'})]);
+- name: AC7 a category value other than true does not grant
+  code: |-
+    on(INIT);
+    stored(consentCookie({NECESSARY: true, FUNCTIONAL: 'true', ANALYTICS: 1, MARKETING: 'yes'}), null);
+    runCode({});
+    assertThat(updates()).isEqualTo([ALL_DENIED]);
+- name: AC8 redaction and passthrough are sent only when on
+  code: |-
+    on(INIT);
+    stored(undefined, null);
+    runCode({adsDataRedaction: true, urlPassthrough: true});
+    assertThat(calls[0]).isEqualTo(['set', {'developer_id.dMmRhY2': true, ads_data_redaction: true, url_passthrough: true}]);
+- name: AC9 returning visitor with cookie gets update and applied event
+  code: |-
+    const consent = {NECESSARY: true, FUNCTIONAL: true, ANALYTICS: true, MARKETING: true, update: true};
+    on(INIT);
+    stored(consentCookie(consent), null);
+    runCode({});
+    assertThat(calls).isEqualTo([
+      ['set', {'developer_id.dMmRhY2': true}],
+      ['default', merge(ALL_DENIED, {wait_for_update: 500})],
+      ['update', ALL_GRANTED],
+      ['push', {event: 'privy_consent_applied', consent_state: consent}]
+    ]);
+- name: AC9 cookie missing falls back to localStorage
+  code: |-
+    const consent = {NECESSARY: true, FUNCTIONAL: false, ANALYTICS: true, MARKETING: false};
+    on(INIT);
+    stored(undefined, consentCookie(consent));
+    runCode({});
+    assertThat(updates()).isEqualTo([merge(ALL_DENIED, {analytics_storage: 'granted'})]);
+    assertThat(pushes()).isEqualTo([{event: 'privy_consent_applied', consent_state: consent}]);
+- name: AC9 unparsable cookie falls back to localStorage
+  code: |-
+    on(INIT);
+    stored('{not json', consentCookie({NECESSARY: true, FUNCTIONAL: false, ANALYTICS: false, MARKETING: true}));
+    runCode({});
+    assertThat(updates()).isEqualTo([merge(ALL_DENIED, {ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted'})]);
+- name: AC9 nothing readable sends no update
+  code: |-
+    on(INIT);
+    stored('null', '"text"');
+    runCode({});
+    assertThat(updates()).isEqualTo([]);
+    assertThat(pushes()).isEqualTo([]);
+    assertApi('gtmOnSuccess').wasCalled();
+- name: AC10 update event sends update and applied event only
+  code: |-
+    const consent = {NECESSARY: true, FUNCTIONAL: false, ANALYTICS: true, MARKETING: false, update: true};
+    on(UPDATE);
+    stored(consentCookie(consent), null);
+    runCode({adsDataRedaction: true, regionDefaults: [row('IN', 'granted', 'granted', 'granted', 'granted', 'granted', 'granted')]});
+    assertThat(calls).isEqualTo([
+      ['update', merge(ALL_DENIED, {analytics_storage: 'granted'})],
+      ['push', {event: 'privy_consent_applied', consent_state: consent}]
+    ]);
+- name: AC10 update event with nothing stored does nothing
+  code: |-
+    on(UPDATE);
+    stored(undefined, null);
+    runCode({});
+    assertThat(calls).isEqualTo([]);
+    assertApi('gtmOnSuccess').wasCalled();
+- name: AC11 upgraded tag with no new fields matches v3 consent values
+  code: |-
+    on(INIT);
+    stored(consentCookie({NECESSARY: true, FUNCTIONAL: true, ANALYTICS: false, MARKETING: true}), null);
+    runCode({});
+    assertThat(defaults()).isEqualTo([merge(ALL_DENIED, {wait_for_update: 500})]);
+    assertThat(updates()).isEqualTo([merge(ALL_GRANTED, {analytics_storage: 'denied'})]);
+setup: |-
+  const JSON = require('JSON');
+  const INIT = 'gtm.init_consent';
+  const UPDATE = 'privy_consent_update';
+  const ALL_DENIED = {ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied', functionality_storage: 'denied', personalization_storage: 'denied', security_storage: 'granted'};
+  const ALL_GRANTED = {ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted', analytics_storage: 'granted', functionality_storage: 'granted', personalization_storage: 'granted', security_storage: 'granted'};
+  const calls = [];
+  mock('gtagSet', (settings) => { calls.push(['set', settings]); });
+  mock('setDefaultConsentState', (state) => { calls.push(['default', state]); });
+  mock('updateConsentState', (state) => { calls.push(['update', state]); });
+  mock('createQueue', () => (event) => { calls.push(['push', event]); });
+
+  function merge(base, extra) {
+    const out = {};
+    for (const k in base) out[k] = base[k];
+    for (const k in extra) out[k] = extra[k];
+    return out;
+  }
+  function only(kind) {
+    return calls.filter((c) => c[0] === kind).map((c) => c[1]);
+  }
+  function defaults() { return only('default'); }
+  function updates() { return only('update'); }
+  function pushes() { return only('push'); }
+  function on(event) {
+    mock('copyFromDataLayer', (key) => key === 'event' ? event : undefined);
+  }
+  function stored(cookieValue, localValue) {
+    mock('getCookieValues', (name) => name === 'privyConsent' && cookieValue !== undefined ? [cookieValue] : []);
+    mockObject('localStorage', {getItem: (key) => key === 'privyConsent' ? localValue : null});
+  }
+  function consentCookie(consent) { return JSON.stringify(consent); }
+  function row(region, ad, adUser, adPers, analytics, functionality, personalization) {
+    return {region: region, ad_storage: ad, ad_user_data: adUser, ad_personalization: adPers, analytics_storage: analytics, functionality_storage: functionality, personalization_storage: personalization};
+  }
 
 
 ___NOTES___
 
 Created on 27/08/2024, 11:47:57
 
-Last modified on 02/03/2026
+Last modified on 17/11/2026
