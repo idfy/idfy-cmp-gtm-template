@@ -437,8 +437,8 @@ function readStoredConsent() {
 
 function applyStoredConsent(dataLayerPush) {
   const consent = readStoredConsent();
-  if (!consent) {
-    log('Privy CMP: no stored consent, defaults stay in place');
+  if (!consent || consent.update !== true) {
+    log('Privy CMP: visitor has not chosen yet, defaults stay in place');
     return;
   }
   updateConsentState(consentState((signal) => consent[categoryFor(signal)] === true));
@@ -993,19 +993,19 @@ scenarios:
 - name: AC7 custom map grants a type only when its mapped category is true
   code: |-
     on(INIT);
-    stored(consentCookie({NECESSARY: true, FUNCTIONAL: false, ANALYTICS: true, MARKETING: false}), null);
+    stored(consentCookie({NECESSARY: true, FUNCTIONAL: false, ANALYTICS: true, MARKETING: false, update: true}), null);
     runCode({mapAnalyticsStorage: 'MARKETING', mapAdUserData: 'ANALYTICS'});
     assertThat(updates()).isEqualTo([merge(ALL_DENIED, {ad_user_data: 'granted'})]);
 - name: AC7 unknown map value falls back to v3 map and security stays granted
   code: |-
     on(INIT);
-    stored(consentCookie({NECESSARY: false, FUNCTIONAL: true, ANALYTICS: false, MARKETING: true}), null);
+    stored(consentCookie({NECESSARY: false, FUNCTIONAL: true, ANALYTICS: false, MARKETING: true, update: true}), null);
     runCode({mapAdStorage: 'NECESSARY'});
     assertThat(updates()).isEqualTo([merge(ALL_GRANTED, {analytics_storage: 'denied'})]);
 - name: AC7 a category value other than true does not grant
   code: |-
     on(INIT);
-    stored(consentCookie({NECESSARY: true, FUNCTIONAL: 'true', ANALYTICS: 1, MARKETING: 'yes'}), null);
+    stored(consentCookie({NECESSARY: true, FUNCTIONAL: 'true', ANALYTICS: 1, MARKETING: 'yes', update: true}), null);
     runCode({});
     assertThat(updates()).isEqualTo([ALL_DENIED]);
 - name: AC8 redaction and passthrough are sent only when on
@@ -1028,7 +1028,7 @@ scenarios:
     ]);
 - name: AC9 cookie missing falls back to localStorage
   code: |-
-    const consent = {NECESSARY: true, FUNCTIONAL: false, ANALYTICS: true, MARKETING: false};
+    const consent = {NECESSARY: true, FUNCTIONAL: false, ANALYTICS: true, MARKETING: false, update: true};
     on(INIT);
     stored(undefined, consentCookie(consent));
     runCode({});
@@ -1037,7 +1037,7 @@ scenarios:
 - name: AC9 unparsable cookie falls back to localStorage
   code: |-
     on(INIT);
-    stored('{not json', consentCookie({NECESSARY: true, FUNCTIONAL: false, ANALYTICS: false, MARKETING: true}));
+    stored('{not json', consentCookie({NECESSARY: true, FUNCTIONAL: false, ANALYTICS: false, MARKETING: true, update: true}));
     runCode({});
     assertThat(updates()).isEqualTo([merge(ALL_DENIED, {ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted'})]);
 - name: AC9 nothing readable sends no update
@@ -1047,6 +1047,29 @@ scenarios:
     runCode({});
     assertThat(updates()).isEqualTo([]);
     assertThat(pushes()).isEqualTo([]);
+    assertApi('gtmOnSuccess').wasCalled();
+- name: AC9 unanswered visitor (update false) keeps the defaults
+  code: |-
+    on(INIT);
+    stored(consentCookie({NECESSARY: true, FUNCTIONAL: false, ANALYTICS: false, MARKETING: false, update: false}), null);
+    runCode({regionDefaults: [row('IN', 'denied', 'denied', 'denied', 'granted', 'denied', 'denied')]});
+    assertThat(defaults().length).isEqualTo(2);
+    assertThat(updates()).isEqualTo([]);
+    assertThat(pushes()).isEqualTo([]);
+    assertApi('gtmOnSuccess').wasCalled();
+- name: AC9 stored choice without update flag is treated as unanswered
+  code: |-
+    on(INIT);
+    stored(consentCookie({NECESSARY: true, FUNCTIONAL: true, ANALYTICS: true, MARKETING: true}), null);
+    runCode({});
+    assertThat(updates()).isEqualTo([]);
+    assertThat(pushes()).isEqualTo([]);
+- name: AC10 update event for an unanswered visitor does nothing
+  code: |-
+    on(UPDATE);
+    stored(consentCookie({NECESSARY: true, FUNCTIONAL: false, ANALYTICS: false, MARKETING: false, update: false}), null);
+    runCode({});
+    assertThat(calls).isEqualTo([]);
     assertApi('gtmOnSuccess').wasCalled();
 - name: AC10 update event sends update and applied event only
   code: |-
@@ -1068,7 +1091,7 @@ scenarios:
 - name: AC11 upgraded tag with no new fields matches v3 consent values
   code: |-
     on(INIT);
-    stored(consentCookie({NECESSARY: true, FUNCTIONAL: true, ANALYTICS: false, MARKETING: true}), null);
+    stored(consentCookie({NECESSARY: true, FUNCTIONAL: true, ANALYTICS: false, MARKETING: true, update: true}), null);
     runCode({});
     assertThat(defaults()).isEqualTo([merge(ALL_DENIED, {wait_for_update: 500})]);
     assertThat(updates()).isEqualTo([merge(ALL_GRANTED, {analytics_storage: 'denied'})]);
