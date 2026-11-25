@@ -397,11 +397,9 @@ function isRegionCode(code) {
 
 function regionDefaults() {
   const rows = getType(data.regionDefaults) === 'array' ? data.regionDefaults : [];
-  const claimed = {};
-  const defaults = [];
-  rows.forEach((row) => {
-    if (getType(row) !== 'object' || !row.region) return;
+  const rowCodes = rows.map((row) => {
     const codes = [];
+    if (getType(row) !== 'object' || !row.region) return codes;
     makeString(row.region).split(',').forEach((raw) => {
       const code = raw.trim().toUpperCase();
       if (!code) return;
@@ -409,9 +407,18 @@ function regionDefaults() {
         log('Privy CMP: ignored invalid region code "' + raw.trim() + '"');
         return;
       }
-      if (claimed[code]) return;
-      claimed[code] = true;
       codes.push(code);
+    });
+    return codes;
+  });
+  // A code listed in several rows belongs to the last one.
+  const owner = {};
+  rowCodes.forEach((codes, i) => codes.forEach((code) => { owner[code] = i; }));
+  const defaults = [];
+  rows.forEach((row, i) => {
+    const codes = [];
+    rowCodes[i].forEach((code) => {
+      if (owner[code] === i && codes.indexOf(code) < 0) codes.push(code);
     });
     if (!codes.length) return;
     const state = consentState((signal) => row[signal.type] === 'granted');
@@ -969,7 +976,7 @@ scenarios:
       merge(ALL_DENIED, {wait_for_update: 500}),
       {ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'denied', analytics_storage: 'granted', functionality_storage: 'granted', personalization_storage: 'denied', security_storage: 'granted', region: ['US-CA', 'US-NY'], wait_for_update: 500}
     ]);
-- name: AC6 invalid codes dropped, empty rows skipped, first row wins on duplicates
+- name: AC6 invalid codes dropped, empty rows skipped, last row wins on duplicates
   code: |-
     on(INIT);
     stored(undefined, null);
@@ -981,8 +988,20 @@ scenarios:
     ]});
     assertThat(defaults()).isEqualTo([
       merge(ALL_DENIED, {wait_for_update: 500}),
-      merge(ALL_GRANTED, {region: ['IN'], wait_for_update: 500}),
-      merge(ALL_DENIED, {analytics_storage: 'granted', region: ['GB'], wait_for_update: 500})
+      merge(ALL_DENIED, {analytics_storage: 'granted', region: ['IN', 'GB'], wait_for_update: 500})
+    ]);
+- name: AC6 a later row takes only the duplicated code from an earlier row
+  code: |-
+    on(INIT);
+    stored(undefined, null);
+    runCode({regionDefaults: [
+      row('FR, ES', 'granted', 'granted', 'granted', 'granted', 'granted', 'granted'),
+      row('FR', 'denied', 'denied', 'denied', 'granted', 'denied', 'denied')
+    ]});
+    assertThat(defaults()).isEqualTo([
+      merge(ALL_DENIED, {wait_for_update: 500}),
+      merge(ALL_GRANTED, {region: ['ES'], wait_for_update: 500}),
+      merge(ALL_DENIED, {analytics_storage: 'granted', region: ['FR'], wait_for_update: 500})
     ]);
 - name: AC6 a row value other than granted is sent as denied
   code: |-
