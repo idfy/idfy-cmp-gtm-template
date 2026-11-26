@@ -30,7 +30,7 @@ ___TEMPLATE_PARAMETERS___
   {
     "type": "LABEL",
     "name": "consentModeInfo",
-    "displayName": "Fire this tag on two triggers: <strong>Consent Initialization - All Pages</strong> and a Custom Event named <strong>privy_consent_update</strong>. Every Google consent type starts denied (security_storage is always granted) and waits up to 500 ms for the visitor's stored choice. Basic or advanced Consent Mode is decided by how your Google tags are set up in this container."
+    "displayName": "Fire this tag on two triggers: <strong>Consent Initialization - All Pages</strong> and a Custom Event named <strong>privy_consent_update</strong>. Every Google consent type starts denied (security_storage is always granted) and is updated from the visitor's stored choice once they have made one. Basic or advanced Consent Mode is decided by how your Google tags are set up in this container."
   },
   {
     "type": "GROUP",
@@ -325,6 +325,23 @@ ___TEMPLATE_PARAMETERS___
         "simpleValueType": true,
         "defaultValue": false,
         "help": "Adds <code>gclid</code>, <code>dclid</code>, <code>gclsrc</code>, <code>_gl</code> and <code>wbraid</code> to links within your site so ad click and analytics information survives without cookies. Works only for same-domain links, with a consent-aware Google tag and, for Google Ads and Floodlight, a GCLID or DCLID in the landing URL. Make sure redirects keep these parameters, your analytics tools ignore them in page URLs, and they don't break pages that use query parameters. Google may add them whether or not consent is granted. Mainly has an effect in advanced consent mode, where Google tags load before consent."
+      },
+      {
+        "type": "TEXT",
+        "name": "waitForUpdate",
+        "displayName": "Wait for update (milliseconds)",
+        "simpleValueType": true,
+        "defaultValue": "",
+        "valueValidators": [
+          {
+            "type": "REGEX",
+            "args": [
+              "^([1-9][0-9]{0,4})?$"
+            ],
+            "errorMessage": "Leave empty, or enter a whole number of milliseconds such as 500."
+          }
+        ],
+        "help": "Optional. Leave empty unless your Google tags fire before the visitor's stored choice is applied. When set, Google tags wait up to this long for the Privy banner to send that choice."
       }
     ]
   }
@@ -343,13 +360,13 @@ const createQueue = require('createQueue');
 const gtagSet = require('gtagSet');
 const getType = require('getType');
 const makeString = require('makeString');
+const makeNumber = require('makeNumber');
 const JSON = require('JSON');
 
 const CONSENT_NAME = 'privyConsent';
 const UPDATE_EVENT = 'privy_consent_update';
 const APPLIED_EVENT = 'privy_consent_applied';
 const DEVELOPER_ID_KEY = 'developer_id.dMmRhY2';
-const WAIT_FOR_UPDATE_MS = 500;
 const CATEGORIES = ['FUNCTIONAL', 'ANALYTICS', 'MARKETING'];
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const LETTERS_AND_DIGITS = LETTERS + '0123456789';
@@ -423,7 +440,6 @@ function regionDefaults() {
     if (!codes.length) return;
     const state = consentState((signal) => row[signal.type] === 'granted');
     state.region = codes;
-    state.wait_for_update = WAIT_FOR_UPDATE_MS;
     defaults.push(state);
   });
   return defaults;
@@ -452,6 +468,11 @@ function applyStoredConsent(dataLayerPush) {
   dataLayerPush({event: APPLIED_EVENT, consent_state: consent});
 }
 
+function waitForUpdateMs() {
+  const ms = makeNumber(makeString(data.waitForUpdate || '').trim());
+  return ms > 0 ? ms : undefined;
+}
+
 function setDefaults() {
   const settings = {};
   settings[DEVELOPER_ID_KEY] = true;
@@ -459,10 +480,11 @@ function setDefaults() {
   if (data.urlPassthrough === true) settings.url_passthrough = true;
   gtagSet(settings);
 
-  const globalDefault = consentState(() => false);
-  globalDefault.wait_for_update = WAIT_FOR_UPDATE_MS;
-  setDefaultConsentState(globalDefault);
-  regionDefaults().forEach((state) => setDefaultConsentState(state));
+  const waitMs = waitForUpdateMs();
+  [consentState(() => false)].concat(regionDefaults()).forEach((state) => {
+    if (waitMs) state.wait_for_update = waitMs;
+    setDefaultConsentState(state);
+  });
 }
 
 const dataLayerPush = createQueue('dataLayer');
@@ -955,14 +977,14 @@ ___WEB_PERMISSIONS___
 ___TESTS___
 
 scenarios:
-- name: AC5 consent init sets developer id then all-denied global default with wait_for_update
+- name: AC5 consent init sets developer id then all-denied global default
   code: |-
     on(INIT);
     stored(undefined, null);
     runCode({});
     assertThat(calls).isEqualTo([
       ['set', {'developer_id.dMmRhY2': true}],
-      ['default', merge(ALL_DENIED, {wait_for_update: 500})]
+      ['default', ALL_DENIED]
     ]);
     assertApi('gtmOnSuccess').wasCalled();
 - name: AC6 region rows add a default per row with normalised codes
@@ -973,8 +995,8 @@ scenarios:
       row('us-ca, US-NY', 'granted', 'granted', 'denied', 'granted', 'granted', 'denied')
     ]});
     assertThat(defaults()).isEqualTo([
-      merge(ALL_DENIED, {wait_for_update: 500}),
-      {ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'denied', analytics_storage: 'granted', functionality_storage: 'granted', personalization_storage: 'denied', security_storage: 'granted', region: ['US-CA', 'US-NY'], wait_for_update: 500}
+      ALL_DENIED,
+      {ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'denied', analytics_storage: 'granted', functionality_storage: 'granted', personalization_storage: 'denied', security_storage: 'granted', region: ['US-CA', 'US-NY']}
     ]);
 - name: AC6 invalid codes dropped, empty rows skipped, last row wins on duplicates
   code: |-
@@ -987,8 +1009,8 @@ scenarios:
       row('in,gb', 'denied', 'denied', 'denied', 'granted', 'denied', 'denied')
     ]});
     assertThat(defaults()).isEqualTo([
-      merge(ALL_DENIED, {wait_for_update: 500}),
-      merge(ALL_DENIED, {analytics_storage: 'granted', region: ['IN', 'GB'], wait_for_update: 500})
+      ALL_DENIED,
+      merge(ALL_DENIED, {analytics_storage: 'granted', region: ['IN', 'GB']})
     ]);
 - name: AC6 a later row takes only the duplicated code from an earlier row
   code: |-
@@ -999,16 +1021,16 @@ scenarios:
       row('FR', 'denied', 'denied', 'denied', 'granted', 'denied', 'denied')
     ]});
     assertThat(defaults()).isEqualTo([
-      merge(ALL_DENIED, {wait_for_update: 500}),
-      merge(ALL_GRANTED, {region: ['ES'], wait_for_update: 500}),
-      merge(ALL_DENIED, {analytics_storage: 'granted', region: ['FR'], wait_for_update: 500})
+      ALL_DENIED,
+      merge(ALL_GRANTED, {region: ['ES']}),
+      merge(ALL_DENIED, {analytics_storage: 'granted', region: ['FR']})
     ]);
 - name: AC6 a row value other than granted is sent as denied
   code: |-
     on(INIT);
     stored(undefined, null);
     runCode({regionDefaults: [{region: 'DE', ad_storage: 'yes'}]});
-    assertThat(defaults()[1]).isEqualTo(merge(ALL_DENIED, {region: ['DE'], wait_for_update: 500}));
+    assertThat(defaults()[1]).isEqualTo(merge(ALL_DENIED, {region: ['DE']}));
 - name: AC7 custom map grants a type only when its mapped category is true
   code: |-
     on(INIT);
@@ -1041,7 +1063,7 @@ scenarios:
     runCode({});
     assertThat(calls).isEqualTo([
       ['set', {'developer_id.dMmRhY2': true}],
-      ['default', merge(ALL_DENIED, {wait_for_update: 500})],
+      ['default', ALL_DENIED],
       ['update', ALL_GRANTED],
       ['push', {event: 'privy_consent_applied', consent_state: consent}]
     ]);
@@ -1112,8 +1134,25 @@ scenarios:
     on(INIT);
     stored(consentCookie({NECESSARY: true, FUNCTIONAL: true, ANALYTICS: false, MARKETING: true, update: true}), null);
     runCode({});
-    assertThat(defaults()).isEqualTo([merge(ALL_DENIED, {wait_for_update: 500})]);
+    assertThat(defaults()).isEqualTo([ALL_DENIED]);
     assertThat(updates()).isEqualTo([merge(ALL_GRANTED, {analytics_storage: 'denied'})]);
+- name: wait_for_update is added to every default when set
+  code: |-
+    on(INIT);
+    stored(undefined, null);
+    runCode({waitForUpdate: ' 500 ', regionDefaults: [row('IN', 'denied', 'denied', 'denied', 'granted', 'denied', 'denied')]});
+    assertThat(defaults()).isEqualTo([
+      merge(ALL_DENIED, {wait_for_update: 500}),
+      merge(ALL_DENIED, {analytics_storage: 'granted', region: ['IN'], wait_for_update: 500})
+    ]);
+- name: wait_for_update is left out when empty, zero or not a number
+  code: |-
+    on(INIT);
+    stored(undefined, null);
+    runCode({waitForUpdate: ''});
+    runCode({waitForUpdate: '0'});
+    runCode({waitForUpdate: 'abc'});
+    assertThat(defaults()).isEqualTo([ALL_DENIED, ALL_DENIED, ALL_DENIED]);
 setup: |-
   const JSON = require('JSON');
   const INIT = 'gtm.init_consent';
