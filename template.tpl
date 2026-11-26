@@ -42,7 +42,7 @@ ___TEMPLATE_PARAMETERS___
         "type": "SIMPLE_TABLE",
         "name": "regionDefaults",
         "displayName": "Default consent by region",
-        "help": "Optional. Overrides the all-denied default for visitors in the listed regions until they make a choice. Use ISO 3166-2 codes, comma separated, e.g. <code>IN</code> or <code>US-CA, US-NY</code>. Invalid codes are ignored, and a code already used in an earlier row is ignored.",
+        "help": "Optional. Overrides the all-denied default for visitors in the listed regions until they make a choice. Use ISO 3166-2 codes, comma separated, e.g. <code>IN</code> or <code>US-CA, US-NY</code>. The United Kingdom is <code>GB</code>, not <code>UK</code>. If a code is in more than one row, the last row applies. Invalid codes are ignored. Google finds the region from the visitor's IP address, which is less accurate for states than for countries.",
         "newRowButtonText": "Add region",
         "simpleTableColumns": [
           {
@@ -316,7 +316,7 @@ ___TEMPLATE_PARAMETERS___
         "checkboxText": "Redact ads data (ads_data_redaction)",
         "simpleValueType": true,
         "defaultValue": false,
-        "help": "Applies only while ad_storage is denied: removes ad click identifiers from Google Ads and Floodlight requests."
+        "help": "When advertising consent is denied, removes ad click identifiers from what is sent to Google and routes requests through a cookieless domain. No effect when consent is granted. Mainly has an effect in advanced consent mode, where Google tags load before consent."
       },
       {
         "type": "CHECKBOX",
@@ -324,7 +324,7 @@ ___TEMPLATE_PARAMETERS___
         "checkboxText": "Pass ad click information through URLs (url_passthrough)",
         "simpleValueType": true,
         "defaultValue": false,
-        "help": "Adds ad click and analytics parameters to links within your site, whether or not consent is granted."
+        "help": "Adds <code>gclid</code>, <code>dclid</code>, <code>gclsrc</code>, <code>_gl</code> and <code>wbraid</code> to links within your site so ad click and analytics information survives without cookies. Works only for same-domain links, with a consent-aware Google tag and, for Google Ads and Floodlight, a GCLID or DCLID in the landing URL. Make sure redirects keep these parameters, your analytics tools ignore them in page URLs, and they don't break pages that use query parameters. Google may add them whether or not consent is granted. Mainly has an effect in advanced consent mode, where Google tags load before consent."
       }
     ]
   }
@@ -486,7 +486,7 @@ ___WEB_PERMISSIONS___
           "key": "environments",
           "value": {
             "type": 1,
-            "string": "all"
+            "string": "debug"
           }
         }
       ]
