@@ -168,7 +168,7 @@ ___TEMPLATE_PARAMETERS___
     "name": "mapGroup",
     "displayName": "Privy category for each Google consent type",
     "groupStyle": "ZIPPY_CLOSED",
-    "help": "A Google consent type is granted only when the visitor accepts the Privy category chosen here. security_storage is always granted.",
+    "help": "A Google consent type is granted only when the visitor accepts the Privy category chosen here. security_storage is always granted. Keep each type on the category Privy blocks the matching Google service under (by default Analytics for Google Analytics, Marketing for Google Ads). If they differ, Privy's banner can block a Google request that consent mode would allow.",
     "subParams": [
       {
         "type": "SELECT",
